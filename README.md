@@ -15,10 +15,14 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   test-old-rust:
-    uses: cds-astro/ci-templates/.github/actions/minimal-rust-version-check@main
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cds-astro/ci-templates/.github/actions/minimal-rust-version-check@main
 ```
 
 ## Content
