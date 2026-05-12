@@ -23,8 +23,7 @@ runs:
       id: rust_version
       run: |
         # we look for `rust-version` in [package].
-        VERSION=$(cargo metadata --no-deps --format-version 1 \
-                | jq -r '.packages[] | select(.source == null) | .rust_version')
+        VERSION=$(grep rust-version Cargo.toml | sed -r 's/rust-version = "([.0-9]+)".*/\1/')
 
         if [[ -z "$VERSION" ]]; then
           exit 1
