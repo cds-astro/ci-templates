@@ -10,7 +10,6 @@ outputs:
 
 runs:
   using: "composite"
-  msrv-check:
   steps:
     - name: checkout
       uses: actions/checkout@v6
