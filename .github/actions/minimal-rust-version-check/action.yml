@@ -1,0 +1,44 @@
+name: "Check that minimal declared Rust version compiles"
+description: | 
+  Installs rustup, get the minimal rust version in Cargo.toml and compiles crate with
+  this version.
+author: "cds-astro"
+
+outputs:
+  msrv:
+    description: "Minimal Rust version detected in Cargo.toml"
+
+runs:
+  using: "composite"
+  msrv-check:
+  steps:
+    - name: checkout
+      uses: actions/checkout@v6
+
+    - name: rustup install
+      run: |
+        curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable
+      shell: bash
+
+    - name: get mrsv from Cargo.toml
+      id: rust_version
+      run: |
+        # we look for `rust-version` in [package].
+        VERSION=$(cargo metadata --no-deps --format-version 1 \
+                | jq -r '.packages[] | select(.source == null) | .rust_version')
+
+        if [[ -z "$VERSION" ]]; then
+          exit 1
+        fi
+        echo "msrv=$VERSION" >> $GITHUB_OUTPUT
+      shell: bash
+
+    - name: install
+      run: |
+        rustup toolchain install ${{ steps.rust_version.outputs.msrv }} --profile minimal
+        rustup default ${{ steps.rust_version.outputs.msrv }}
+      shell: bash
+
+    - name: compile
+      run: cargo build
+      shell: bash
